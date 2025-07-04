@@ -1,1 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SadBot Duel AI - Otomatis</title>
+  <script src="https://js.puter.com/v2/"></script>
+  <style>
+    body {
+      background-color: #000;
+      color: #0f0;
+      font-family: 'Courier New', monospace;
+      padding: 15px;
+    }
+    #chatbox {
+      background-color: #111;
+      border: 1px solid #0f0;
+      padding: 10px;
+      border-radius: 5px;
+      min-height: 300px;
+      max-height: 70vh;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      margin-bottom: 10px;
+    }
+    .botA { color: red; }
+    .botB { color: #00FFFF; }
+    button {
+      background: lime;
+      color: #000;
+      border: none;
+      padding: 10px;
+      font-weight: bold;
+      width: 100%;
+      margin-top: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>SadBot A 🧠 → SadBot B 🤖</h2>
+  <div id="chatbox">Klik tombol untuk mulai duel AI!</div>
+  <button onclick="mulai()">▶️ Mulai Duel</button>
+  <button onclick="stop()">⛔ Stop</button>
 
+  <script>
+    const chatbox = document.getElementById("chatbox");
+    let jalan = false;
+
+    async function typeText(element, text, speed) {
+      for (let i = 0; i < text.length; i++) {
+        if (!jalan) return;
+        element.innerText += text.charAt(i);
+        chatbox.scrollTop = chatbox.scrollHeight;
+        await new Promise(resolve => setTimeout(resolve, speed));
+      }
+    }
+
+    async function mulai() {
+      if (jalan) return;
+      jalan = true;
+      chatbox.innerHTML = "";
+      await typeText(chatbox, "SadBot A sedang berpikir untuk memulai percakapan...", 40);
+      setTimeout(loop, 1000);
+    }
+
+    function stop() {
+      jalan = false;
+    }
+
+    async function loop() {
+      if (!jalan) return;
+      try {
+        // SadBot A buat pertanyaan sendiri
+        const promptPertanyaan = "Buat satu pertanyaan menarik, logis, dan relevan untuk memulai percakapan AI.";
+        const pertanyaan = await puter.ai.chat(promptPertanyaan);
+        if (!jalan) return;
+
+        const elA = document.createElement("div");
+        elA.className = "botA";
+        chatbox.appendChild(elA);
+        await typeText(elA, `SadBot A: ${pertanyaan}`, 50);
+        if (!jalan) return;
+
+        // SadBot B menjawab
+        const promptJawaban = `Berikan jawaban logis dan ringkas untuk pertanyaan berikut: "${pertanyaan}"`;
+        const jawaban = await puter.ai.chat(promptJawaban);
+        if (!jalan) return;
+
+        const elB = document.createElement("div");
+        elB.className = "botB";
+        chatbox.appendChild(elB);
+        await typeText(elB, `SadBot B: ${jawaban}`, 30);
+        if (!jalan) return;
+
+        setTimeout(loop, 2500);
+      } catch (e) {
+        const elErr = document.createElement("div");
+        elErr.className = "botB";
+        elErr.innerText = "❌ ERROR: " + e.message;
+        chatbox.appendChild(elErr);
+        chatbox.scrollTop = chatbox.scrollHeight;
+        jalan = false;
+      }
+    }
+  </script>
+</body>
+</html>
